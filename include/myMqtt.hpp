@@ -31,6 +31,8 @@ void onMqttMessage(int messageSize)
     {
         newContent += (char)mqttClient.read();
     }
+    mqttCredentials.lastTopic = topic;
+    mqttCredentials.lastMessage = newContent;
     topics_.manageDataSet(topic.c_str());
     myMessages_.manageDataSet(newContent.c_str());
 }
@@ -39,20 +41,16 @@ int mqttSetup(String MQTT_SERVER, uint16_t MQTT_PORT)
 {
     if (mqttClient.connect(MQTT_SERVER.c_str(), MQTT_PORT))
     {
-        mqttClient.setId(mqttCredentials.clientID.c_str());
         mqttClient.setUsernamePassword("", "");
         mqttClient.setCleanSession(true);
         mqttClient.onMessage(onMqttMessage);
-        #ifdef DEBUG
-        Serial.println("(MQTT instance) You're connected to the MQTT broker!");
-        #endif
+        printTest("(MQTT instance) You're connected to the MQTT broker!\n");
         return 1;
     }
     else
     {
-        #ifdef DEBUG
-        Serial.println(std::to_string(mqttClient.connectError()).c_str());
-        #endif
+        printTest(std::to_string(mqttClient.connectError()).c_str());
+        printTest("\n");
         return 0;
     }
 }
